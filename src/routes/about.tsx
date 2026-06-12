@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2 } from "lucide-react";
 import heroMobileImg from "@/assets/Hero-image-for-mobile.jpg";
 import ceoImg from "@/assets/Sir.jpg";
@@ -33,6 +33,15 @@ function AboutPage() {
       </div>
 
       <div className="container-luxe mt-20">
+        <div className="flex items-end justify-between gap-4 flex-wrap mb-5">
+          <div>
+            <div className="text-xs font-bold tracking-[0.2em] text-gold uppercase">Leadership</div>
+            <h2 className="font-display text-3xl lg:text-4xl font-bold text-primary mt-2">Meet the team</h2>
+          </div>
+          <Link to="/ceo-of-dang-dream-property" className="text-sm font-semibold text-primary hover:text-gold inline-flex items-center gap-1">
+            View CEO profile
+          </Link>
+        </div>
         <div className="grid sm:grid-cols-3 gap-5">
           {[
             { n: "Shekhar Chhetru", r: "CEO & Founder", img: ceoImg },

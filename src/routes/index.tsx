@@ -443,6 +443,20 @@ function CEO() {
             <div className="font-display text-xl font-bold">Shekhar Chhetru</div>
             <div className="text-sm text-muted-foreground">CEO & Founder, Dang Dream Property Real Estate PVT. LTD</div>
           </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              to="/ceo-of-dang-dream-property"
+              className="inline-flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-full text-sm font-semibold hover:bg-primary/90 transition shadow-luxe"
+            >
+              View CEO Profile <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              to="/about"
+              className="inline-flex items-center gap-2 border border-border bg-white px-5 py-3 rounded-full text-sm font-semibold text-foreground hover:bg-gray-50 transition"
+            >
+              About the Company
+            </Link>
+          </div>
           <div className="grid grid-cols-3 gap-4 mt-10">
             {[
               { n: "Shekhar Chhetru", r: "CEO & Founder" },

@@ -3,8 +3,15 @@ import { useEffect, useMemo, useState } from "react";
 import { properties as mockProperties, type Property } from "@/lib/data";
 import { PropertyCard } from "@/components/site/PropertyCard";
 import { SlidersHorizontal, ChevronRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import fallbackPropertyImg from "@/assets/1 (2).webp";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 type Search = { q?: string; type?: string; budget?: string; tab?: string };
 
@@ -29,29 +36,13 @@ function PropertiesPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("user_properties")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (!data) return;
-      setUserListings(
-        data.map((r: any) => ({
-          id: `u-${r.id}`,
-          name: r.name,
-          type: r.property_type,
-          txn: r.txn,
-          price: r.price_text,
-          priceValue: Number(r.price_value) || 0,
-          location: `${r.location}${r.city ? ", " + r.city : ""}`,
-          area: r.area || "",
-          beds: r.beds ?? undefined,
-          baths: r.baths ?? undefined,
-          road: r.road || "",
-          facing: r.facing || undefined,
-          image: r.image_url || fallbackPropertyImg,
-          description: r.description || "",
-        }))
-      );
+      try {
+        const m = await import(`@/lib/${"property-listings.client"}`);
+        const listings = await m.fetchAllApprovedListings();
+        setUserListings(listings);
+      } catch (error) {
+        console.error("Failed to load listings", error);
+      }
     })();
   }, []);
 
@@ -75,8 +66,70 @@ function PropertiesPage() {
         </div>
       </div>
 
-      <div className="container-luxe grid lg:grid-cols-[280px_1fr] gap-8">
-        <aside className="bg-card rounded-2xl p-6 border border-border shadow-card h-fit sticky top-24">
+      <div className="container-luxe">
+        <div className="lg:hidden sticky top-[88px] z-40 mb-4 rounded-2xl border border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90 shadow-card">
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <div className="flex items-center gap-2 font-bold text-sm">
+              <SlidersHorizontal className="w-4 h-4 text-gold" />
+              Filters
+              <span className="text-muted-foreground font-normal">({filtered.length})</span>
+            </div>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="h-9 rounded-full">
+                  Open
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[88vh] rounded-t-3xl overflow-y-auto px-0 pb-8 pt-4">
+                <SheetHeader className="px-6 pb-2 text-left">
+                  <SheetTitle>Filters</SheetTitle>
+                  <SheetDescription>Refine the property list without covering the cards.</SheetDescription>
+                </SheetHeader>
+                <div className="px-6 pt-4 space-y-5 text-sm">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Transaction</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[["all","All"],["sale","Buy"],["rent","Rent"],["exchange","Exchange"]].map(([k,l]) => (
+                        <button key={k} onClick={() => setTab(k)} className={`px-3 py-2 rounded-lg text-xs font-semibold transition ${tab === k ? "bg-primary text-white" : "bg-pearl text-foreground hover:bg-pearl/70"}`}>{l}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Property Type</label>
+                    <select
+                      value={type}
+                      onChange={(e) => setType(e.target.value)}
+                      className="w-full bg-pearl rounded-lg px-3 py-2.5 outline-none border border-border"
+                    >
+                      <option value="">All Types</option>
+                      {["House","Land","Apartment","Office Space","Shop Space","Farm Land"].map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Location / Keyword</label>
+                    <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ghorahi, Tulsipur..." className="w-full bg-pearl rounded-lg px-3 py-2.5 outline-none text-sm" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="flex-1 rounded-full"
+                      onClick={() => { setType(""); setQ(""); setTab("all"); }}
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </div>
+
+      <div className="container-luxe grid items-start lg:grid-cols-[280px_minmax(0,1fr)] gap-8">
+        <aside className="hidden lg:block sticky top-24 self-start z-30 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90 rounded-2xl p-6 border border-border shadow-card h-fit">
           <div className="flex items-center gap-2 font-bold mb-5"><SlidersHorizontal className="w-4 h-4 text-gold" /> Filters</div>
           <div className="space-y-5 text-sm">
             <div>
@@ -102,7 +155,7 @@ function PropertiesPage() {
           </div>
         </aside>
 
-        <div>
+        <div className="min-w-0">
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div className="text-sm text-muted-foreground">Showing <span className="font-bold text-foreground">{filtered.length}</span> properties</div>
             <select value={sort} onChange={(e) => setSort(e.target.value)} className="bg-card border border-border rounded-lg px-3 py-2 text-sm outline-none">

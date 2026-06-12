@@ -26,6 +26,26 @@ export type Property = {
   facing?: string;
   image: string;
   description: string;
+  approvalStatus?: "draft" | "pending" | "approved" | "rejected";
+  listingState?: "draft" | "pending" | "approved" | "rejected" | "available" | "sold" | "rented";
+  featured?: boolean;
+  ownerId?: string;
+  city?: string;
+  googleMapsUrl?: string;
+  contactName?: string;
+  contactPhone?: string;
+  contactEmail?: string | null;
+  bedroomsCount?: number;
+  bathroomsCount?: number;
+  livingRoomsCount?: number;
+  kitchensCount?: number;
+  landArea?: string;
+  builtUpArea?: string;
+  amenities?: string[];
+  imageUrls?: string[];
+  imagePaths?: string[];
+  viewsCount?: number;
+  inquiriesCount?: number;
 };
 
 export const properties: Property[] = [

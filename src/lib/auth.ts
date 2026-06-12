@@ -1,5 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { AuthError, AuthResponse as SupaAuthResponse, OAuthResponse } from "@supabase/supabase-js";
+import {
+  requestMagicLinkEmail,
+  requestPasswordResetEmail,
+  requestSignupEmail,
+  requestVerificationResendEmail,
+} from "./email";
 
 function normalizeSiteUrl(raw: string | undefined) {
   const value = (raw ?? "").trim();
@@ -37,17 +43,8 @@ export async function signUp(
   password: string,
   username?: string
 ): Promise<AuthResult> {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        username: username || email.split("@")[0],
-      },
-      emailRedirectTo: redirectUrl("/auth/callback"),
-    },
-  });
-  return { data, error };
+  const { error } = await requestSignupEmail(email.trim(), password, username);
+  return { data: null, error: error as AuthError | null };
 }
 
 // ──────────────────────────────────────────────
@@ -68,13 +65,8 @@ export async function signIn(
 // Sign In - Magic Link (Email OTP)
 // ──────────────────────────────────────────────
 export async function signInWithMagicLink(email: string): Promise<AuthResult> {
-  const { data, error } = await supabase.auth.signInWithOtp({
-    email: email.trim(),
-    options: {
-      emailRedirectTo: redirectUrl("/auth/callback"),
-    },
-  });
-  return { data, error };
+  const { error } = await requestMagicLinkEmail(email.trim());
+  return { data: null, error: error as AuthError | null };
 }
 
 // ──────────────────────────────────────────────
@@ -106,10 +98,8 @@ export async function signOut(): Promise<AuthResult> {
 // Forgot Password — sends reset email
 // ──────────────────────────────────────────────
 export async function resetPassword(email: string): Promise<AuthResult> {
-  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: redirectUrl("/auth/callback"),
-  });
-  return { data, error };
+  const { error } = await requestPasswordResetEmail(email.trim());
+  return { data: null, error: error as AuthError | null };
 }
 
 // ──────────────────────────────────────────────
@@ -126,14 +116,8 @@ export async function updatePassword(newPassword: string): Promise<AuthResult> {
 // Resend Email Verification
 // ──────────────────────────────────────────────
 export async function resendVerificationEmail(email: string): Promise<AuthResult> {
-  const { data, error } = await supabase.auth.resend({
-    type: "signup",
-    email,
-    options: {
-      emailRedirectTo: redirectUrl("/auth/callback"),
-    },
-  });
-  return { data, error };
+  const { error } = await requestVerificationResendEmail(email.trim());
+  return { data: null, error: error as AuthError | null };
 }
 
 // ──────────────────────────────────────────────

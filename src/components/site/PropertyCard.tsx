@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { Property } from "@/lib/data";
-import { Heart, MapPin, BedDouble, Bath, Maximize, Ruler } from "lucide-react";
+import { Heart, MapPin, BedDouble, Bath, Maximize, Ruler, Sparkles } from "lucide-react";
 
 const badgeStyles: Record<Property["txn"], string> = {
   sale: "bg-success text-white",
@@ -18,6 +18,11 @@ export function PropertyCard({ p }: { p: Property }) {
     >
       <div className="relative overflow-hidden aspect-[4/3]">
         <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+        {p.featured && (
+          <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-gold text-primary text-[10px] font-bold tracking-wider px-2.5 py-1 shadow">
+            <Sparkles className="w-3 h-3" /> FEATURED
+          </span>
+        )}
         <span className={`absolute top-3 right-3 ${badgeStyles[p.txn]} text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-full shadow`}>{badgeLabel[p.txn]}</span>
         <button onClick={(e) => { e.preventDefault(); }} className="absolute top-3 left-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur flex items-center justify-center hover:bg-white">
           <Heart className="w-4 h-4 text-primary" />
@@ -39,7 +44,7 @@ export function PropertyCard({ p }: { p: Property }) {
           <span className="flex items-center gap-1"><Ruler className="w-3.5 h-3.5" /> {p.road}</span>
         </div>
         <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
-          <span className="text-xs text-muted-foreground">Dang Dream Property</span>
+          <span className="text-xs text-muted-foreground">{p.approvalStatus === "approved" ? "Published listing" : "Draft listing"}</span>
           <span className="text-sm font-semibold text-gold group-hover:translate-x-1 transition-transform">View Details →</span>
         </div>
       </div>
